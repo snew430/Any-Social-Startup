@@ -1,5 +1,4 @@
 const { User, Thought } = require("../models");
-const { param } = require("../routes");
 
 const userController = {
   getAllUsers(req, res) {
@@ -27,6 +26,10 @@ const userController = {
         path: "thoughts",
         select: "-__v",
       })
+      .populate({
+        path: "friends",
+        select: "-__v",
+      })
       .select("-__v")
       .then((dbUserData) => {
         if (!dbUserData) {
@@ -42,12 +45,11 @@ const userController = {
   },
 
   addFriend({ params }, res) {
-    User.findById({ _id: params.riendId })
-      // User.findOneAndUpdate(
-      //   { _id: params.id },
-      //   { $push: { friends: params.friendId } },
-      //   { new: true }
-      // )
+    User.findOneAndUpdate(
+      { _id: params.id },
+      { $push: { friends: params.friendId } },
+      { new: true }
+    )
       .then((dbUserData) => {
         if (!dbUserData) {
           res.status(404).json({ message: "No user found with this id!" });
@@ -93,8 +95,8 @@ const userController = {
 
   deleteFriend({ params }, res) {
     User.findOneAndUpdate(
-      { _id: params.thoughtId },
-      { $pull: { friends: { _id: params.friendId } } },
+      { _id: params.id },
+      { $pull: { friends: params.friendId } },
       { new: true }
     )
       .then((dbUserData) => res.json(dbUserData))

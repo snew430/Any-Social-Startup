@@ -13,7 +13,7 @@ const UserSchema = new Schema(
       type: String,
       required: true,
       unique: true,
-      // validate:
+      match: /^[a-z0-9]+@[a-z]+\.[a-z]{2,3}$/,
     },
     thoughts: [
       {
@@ -40,19 +40,8 @@ UserSchema.virtual("friendCount").get(function () {
   return this.friends.length;
 });
 
-// UserSchema.virtual(
-//   "friend",
-//   {
-//     ref: "User",
-//     localField: "_id",
-//     foreignField: "friends",
-//     justOne: false,
-//   },
-//   { toJSON: { virtuals: true } }
-// );
-
 UserSchema.pre("remove", function (next) {
-  Thought.remove({ _id: this._id }).exec();
+  Thought.remove({ username: this.username }).exec();
   next();
 });
 
